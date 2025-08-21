@@ -1,0 +1,178 @@
+{
+  "name": "UI Automation-",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "54c704aa-2e96-407b-9c21-d33bd45b8374",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0d2335bc-b2a6-4ab5-b217-19a629f4a1a5",
+              "name": "date_time",
+              "value": "={{ new Date().toLocaleString(\"en-US\", {\n  timeZone: \"Asia/Kolkata\",\n  day: \"numeric\",\n  month: \"long\",\n  year: \"numeric\",\n  hour: \"numeric\",\n  minute: \"2-digit\",\n  second: \"2-digit\",\n  hour12: true\n}) + \" IST\" }}\n\n",
+              "type": "string"
+            },
+            {
+              "id": "00603da3-7976-41e8-b909-74d33c082be0",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "6d7fb751-1743-4f89-89d6-63bab62739cf",
+      "name": "Date&Time"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": " https://1d287b0e8d35.ngrok-free.app/write-text",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        864,
+        0
+      ],
+      "id": "71426904-9b0a-432e-b30e-3586420172e5",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Convert the date and time in wordings {{ $('Date&Time').item.json.date_time }} \n\nExample:\nInput: 30072025:181613\nOutput: July 30th 2025 – 10:16:42 PM IST\n\n#strictly use long dash (– not -), ordinal suffix (like 'th'), 12-hour format with seconds, and IST timezone\nConvert the date and time in wording: {{ $json.date_time }}\n",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        464,
+        0
+      ],
+      "id": "d652104f-d0d8-4816-89c8-57ee594a367f",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        464,
+        240
+      ],
+      "id": "56e22fe3-b420-48bf-a45a-677c13bcbb4a",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "mwBSN5tOdzw5chSd",
+          "name": "Sharon API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Date&Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date&Time": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Kolkata",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "74d3cd61-be14-4649-bda0-211cd2a1fc1e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "190fb5071ca3fe86f93b972bc98e47e4fd0322cb80f0739d20c765c8fdaaa2d2"
+  },
+  "id": "BffE0i287u4mbdeV",
+  "tags": []
+}
